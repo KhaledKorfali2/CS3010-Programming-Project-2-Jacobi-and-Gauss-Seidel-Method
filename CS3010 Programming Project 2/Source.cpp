@@ -11,7 +11,7 @@ using namespace std;
 
 
 //constants
-const int KMAX = 100;
+const int KMAX = 50;
 
 //Function Prototypes
 void display1_DArray(vector<float>& matrix, int numofEquations, string matrixName);
@@ -21,6 +21,7 @@ void displayMatrix2(vector<vector<float>>& matrix, int numOfEquations);
 void combineMatricies(vector<vector<float>>& a, vector<float>& b, vector<vector<float>>& userEquations, int numOfEquations);
 void jacobiMethod(vector<vector<float>> a, vector<float> b, vector<float> xi, int numOfEquations, float delta, float error);
 float calcL2Norm(vector<float>& xi, int numOfEquations);
+float calcL2Norm(vector<float>& xi, vector<float>& yi, int numOfEquations);
 void gaussSeidelMethod(vector<vector<float>> a, vector<float> b, vector<float> xi, int numOfEquations, float delta, float error);
 
 int main()
@@ -152,6 +153,7 @@ int main()
 		cout << "Error: Please choose between options 1 and 2." << endl;
 	}
 
+	//Get starting values from user
 	cout << "Pleaes enter starting values: " << endl;
 	for (int r = 1; r <= numOfEquations; r++)
 	{
@@ -184,41 +186,8 @@ int main()
 	displayMatrix(userEquations, numOfEquations);
 	cout << "\n\n";
 	
-	/*for (k = 0;k < KMAX;k++)
-	{
-		yi = xi;
-		for (i = 0;i < numOfEquations; i++)
-		{
-			sum = b[i];
-			diag = a[i][i];
-			if (abs(diag) < delta)
-			{
-				cout << "Diagonal Element Is Too Small" << endl;
-				break;
-			}
-			for (j = 0;j < numOfEquations;j++)
-			{
-				if (j != i)
-				{
-					sum -= a[i][j] * yi[j];
-				}
-			}
-			xi[i] = sum / diag;
-		}
-		cout << "k = " << k;
-		display1_DArray(xi, numOfEquations, "xi");
-		for (int v = 0; v < numOfEquations;v++)
-		{
-			if (abs(xi[v] - yi[v]) < error)
-			{
-				cout << "k = " << k;
-				display1_DArray(xi, numOfEquations, "xi");
-				break;
-			}
-		}
-	}
-	cout << "Maximum iterations Reached" << endl;*/
 
+	//Display Output
 	jacobiMethod(a, b, xi, numOfEquations, delta, error);
 	cout << "\n\n";
 	gaussSeidelMethod(a, b, xi, numOfEquations, delta, error);
@@ -319,10 +288,11 @@ void jacobiMethod(vector<vector<float>> a, vector<float> b, vector<float> xi, in
 	yi.assign(numOfEquations, 0);
 	float sum, diag;
 
+	cout << "--------------------Jacobi--------------------" << endl;
 	cout << "Jacobi: k = " << 0 << " ";
 	display1_DArray(xi, numOfEquations, "xi");
-	cout << "L2-norm: " << calcL2Norm(xi, numOfEquations) << endl;
-	cout << "\n\n";
+	cout << "L2-norm: " << calcL2Norm(xi,yi, numOfEquations) << endl;
+	cout << "\n";
 	for (int k = 0;k < KMAX;k++)
 	{
 		yi = xi;
@@ -346,19 +316,33 @@ void jacobiMethod(vector<vector<float>> a, vector<float> b, vector<float> xi, in
 		}
 		cout << "Jacobi: k = " << k+1 << " ";
 		display1_DArray(xi, numOfEquations, "xi");
-		cout << "L2-norm: " << calcL2Norm(xi, numOfEquations)<< endl;
+		cout << "L2-norm: " << calcL2Norm(xi,yi, numOfEquations)<< endl;
 		cout << "\n";
-		for (int v = 0; v < numOfEquations;v++)
+
+
+
+		if (calcL2Norm(xi, yi, numOfEquations) < error)
 		{
-			if (abs(xi[v] - yi[v]) < error)
-			{
-				cout << "k = " << k+1;
-				display1_DArray(xi, numOfEquations, "xi");
-				return;
-			}
+			cout << "Guass-Seidel Final Answer: " << "k = " << k + 1 << " ";
+			display1_DArray(xi, numOfEquations, "xi");
+			return;
 		}
 
-	
+		//for (int v = 0; v < numOfEquations;v++)
+		//{
+		//	/*if (abs(xi[v] - yi[v]) < error)
+		//	{
+		//		cout << "Jacobi Final Answer: " << "k = " << k + 1 << " ";
+		//		display1_DArray(xi, numOfEquations, "xi");
+		//		return;
+		//	}*/
+		//	if (curL2Norm - prevL2Norm < error)
+		//	{
+		//		cout << "Jacobi Final Answer: " << "k = " << k + 1 << " ";
+		//		display1_DArray(xi, numOfEquations, "xi");
+		//		return;
+		//	}
+		//}
 	}
 	cout << "Maximum iterations Reached" << endl;
 }
@@ -369,10 +353,11 @@ void gaussSeidelMethod(vector<vector<float>> a, vector<float> b, vector<float> x
 	yi.assign(numOfEquations, 0);
 	float sum, diag;
 
+	cout << "--------------------Guass-Seidel--------------------" << endl;
 	cout << "Guass-Seidel: k = " << 0 << " ";
 	display1_DArray(xi, numOfEquations, "xi");
-	cout << "L2-norm: " << calcL2Norm(xi, numOfEquations) << endl;
-	cout << "\n\n";
+	cout << "L2-norm: " << calcL2Norm(xi,yi, numOfEquations) << endl;
+	cout << "\n";
 	for (int k = 0;k < KMAX;k++)
 	{
 		yi = xi;
@@ -397,18 +382,25 @@ void gaussSeidelMethod(vector<vector<float>> a, vector<float> b, vector<float> x
 		}
 		cout << "Guass-Seidel: k = " << k + 1 << " ";
 		display1_DArray(xi, numOfEquations, "xi");
-		cout << "L2-norm: " << calcL2Norm(xi, numOfEquations) << endl;
+		cout << "L2-norm: " << calcL2Norm(xi,yi, numOfEquations) << endl;
 		cout << "\n";
 
-		for (int v = 0; v < numOfEquations;v++)
+		if (calcL2Norm(xi, yi, numOfEquations) < error)
 		{
-			if (abs(xi[v] - yi[v]) < error)
+			cout << "Guass-Seidel Final Answer: " << "k = " << k + 1 << " ";
+			display1_DArray(xi, numOfEquations, "xi");
+			return;
+		}
+
+		/*for (int v = 0; v < numOfEquations;v++)
+		{
+			if (curL2Norm - prevL2Norm < error)
 			{
-				cout << "k = " << k + 1;
+				cout << "Guass-Seidel Final Answer: " << "k = " << k + 1 << " ";
 				display1_DArray(xi, numOfEquations, "xi");
 				return;
 			}
-		}
+		}*/
 	}
 	cout << "Maximum iterations Reached" << endl;
 }
@@ -420,6 +412,19 @@ float calcL2Norm(vector<float>& xi, int numOfEquations)
 	for (int v = 0; v < numOfEquations;v++)
 	{
 		sum += xi[v] * xi[v];
+	}
+	L2Norm = sqrt(sum);
+
+	return L2Norm;
+}
+
+float calcL2Norm(vector<float>& xi, vector<float>& yi, int numOfEquations)
+{
+	float L2Norm = 0;
+	float sum = 0;
+	for (int v = 0; v < numOfEquations;v++)
+	{
+		sum += pow(abs(xi[v] - yi[v]), 2);
 	}
 	L2Norm = sqrt(sum);
 
