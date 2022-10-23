@@ -323,7 +323,7 @@ void jacobiMethod(vector<vector<float>> a, vector<float> b, vector<float> xi, in
 
 		if (calcL2Norm(xi, yi, numOfEquations) < error)
 		{
-			cout << "Guass-Seidel Final Answer: " << "k = " << k + 1 << " ";
+			cout << "Jacobi Answer: " << "k = " << k + 1 << " ";
 			display1_DArray(xi, numOfEquations, "xi");
 			return;
 		}
